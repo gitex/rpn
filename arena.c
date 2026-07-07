@@ -4,11 +4,8 @@
 #include "types.h"
 #include "arena.h"
 
-#define arena_ptr(data_ptr) ((Arena *) (data_ptr) - 1)
-#define data_ptr(arena_ptr) ((char *) (arena_ptr) + sizeof(Arena))
 
 Arena *arena_init(Arena *a, size_t size) {
-
     // if (a != NULL) {
     //     while (a->next) { a = a->next; }
     // }
