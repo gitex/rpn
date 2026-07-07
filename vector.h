@@ -59,8 +59,8 @@ typedef void* VecPtr;
 #define vec_len(vec_ptr)    header_ptr((vec_ptr))->length
 #define vec_cap(vec_ptr)    header_ptr((vec_ptr))->capacity
 #define vec_push(vec, elem) (realloc_if_needed((vec)), (vec)[header_ptr((vec))->length++] = elem)
-#define vec_pop(vec)        (header_ptr(vec)->length--, (vec)[header_ptr((vec)->length])
-#define vec_last(vec)       ((vec)[header_ptr(vec)->length])
+#define vec_pop(vec)        (header_ptr((vec))->length--, ((vec))[header_ptr((vec))->length])
+#define vec_last(vec)       (vec)[header_ptr(vec)->length - 1]
 
 VecPtr vec_new(Arena *a, size_t capacity, size_t elem_size) {
     if (capacity < CAP_MIN) {

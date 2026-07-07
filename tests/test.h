@@ -69,19 +69,19 @@ static size_t tests_count = 0;
             tests_failed++; \
             asserts_failed++; \
             fprintf(stderr, FAIL_PREFIX " [%s:%d] (", __FILE__, __LINE__); \
-            fprintf(stderr, #cond ") => %s\n", ((cond) == 0 ? "false" : "true"));                                                              \
+            fprintf(stderr, #cond ") => %d\n", cond);                                      \
             return; \
         }                                                                                                    \
     } while(0)
 
-#define Ok(c)  Assert((c))
+#define Ok Assert
 
 #define RunTest(test_meta)                                                                                   \
     do {                                                                                                               \
         asserts_failed = 0; \
         (test_meta).fn();                                                                                                     \
         if (!asserts_failed) { \
-            fprintf(stdout, PASS_PREFIX " %s", (test_meta).name);                                                    \
+            fprintf(stdout, PASS_PREFIX " %s\n", (test_meta).name);                                                    \
         } \
     } while (0)
 

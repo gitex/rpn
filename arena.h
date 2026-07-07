@@ -1,3 +1,6 @@
+#ifndef ARENA_H
+#define ARENA_H
+
 #include <stddef.h>
 #include <inttypes.h>
 
@@ -19,3 +22,5 @@ void arena_free(Arena *a);
 void arena_reset_to(Arena *a, void *ptr);
 
 #define arena_alloc_type(a, T) (T*)arena_alloc(a, sizeof(T))
+
+#endif  // ARENA_H

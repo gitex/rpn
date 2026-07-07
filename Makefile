@@ -8,5 +8,5 @@ run:
 	./main
 
 gdb: debug
-	gdb ./main
+	gdb --ex "tty /dev/null" ./main
 

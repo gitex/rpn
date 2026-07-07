@@ -22,7 +22,7 @@ run: $(TARGET)
 	./$(TARGET)
 
 gdb: debug
-	gdb ./$(TARGET)
+	gdb --ex "tty /dev/null" ./$(TARGET)
 
 valgrind:
 	valgrind --leak-check=full ./$(TARGET)

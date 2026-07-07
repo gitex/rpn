@@ -2,16 +2,20 @@
 
 #include "../arena.h"
 
-Test(arena_allocations) {
+#define VECTOR_IMPLEMENTATION
+#include "../vector.h"
+
+
+Test(arena) {
     Arena *a = arena_init(NULL, 64);
 
     // Cannot allocate more then capacity
     {
         arena_reset(a);
 
-        Assert(arena_alloc(a, 32, 0) != NULL);
-        Assert(arena_alloc(a, 32, 0) != NULL);
-        Assert(arena_alloc(a, 32, 0) == NULL);
+        Ok(arena_alloc(a, 32, 0) != NULL);
+        Ok(arena_alloc(a, 32, 0) != NULL);
+        Ok(arena_alloc(a, 32, 0) == NULL);
     }
 
     // Reset moves ptr to begining
@@ -23,7 +27,7 @@ Test(arena_allocations) {
 
         arena_reset(a);
         void *ptr_3 = arena_alloc(a, 64, 0);
-        Assert(ptr_1 == ptr_3);
+        Ok(ptr_1 == ptr_3);
     }
 
     // Alloc should align data with paddings
@@ -33,12 +37,53 @@ Test(arena_allocations) {
 
         void *ptr;
         ptr = arena_alloc(a, 4, 4);
-        Assert(&a->data[4] == ptr);
-        Assert(a->offset == 8);
+        Ok(&a->data[4] == ptr);
+        Ok(a->offset == 8);
 
         ptr = arena_alloc(a, 4, 4); // should be already aligned here
-        Assert(&a->data[8] == ptr);
-        Assert(a->offset == 12);
+        Ok(&a->data[8] == ptr);
+        Ok(a->offset == 12);
+    }
+
+    arena_free(a);
+}
+
+Test(vector) {
+    Arena *a = arena_init(NULL, 1024);
+
+    // vec_push and vec_last
+    {
+        u32 *v = vec_new(a, 4, sizeof(u32));
+
+        vec_push(v, 1);
+        Ok(vec_last(v) == 1);
+        vec_push(v, 2);
+        Ok(vec_last(v) == 2);
+        vec_push(v, 3);
+        Ok(vec_last(v) == 3);
+        vec_push(v, 4);
+        Ok(vec_last(v) == 4);
+        vec_push(v, 5);
+        Ok(vec_last(v) == 5);
+        vec_push(v, 6);
+        Ok(vec_last(v) == 6);
+
+        Ok(vec_len(v) == 6);
+        Ok(vec_cap(v) == 8);
+    }
+
+    // vec_pop
+    {
+        u32 *v = vec_new(a, 4, sizeof(u32));
+
+        vec_push(v, 10);
+        vec_push(v, 20);
+        Ok(vec_len(v) == 2);
+
+        Ok(vec_pop(v) == 20);
+        Ok(vec_pop(v) == 10);
+
+        Ok(vec_len(v) == 0);
     }
 
     arena_free(a);
