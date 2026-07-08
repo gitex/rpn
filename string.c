@@ -1,3 +1,6 @@
+#include <string.h>
+#include <stdio.h>
+
 #include "core.h"
 #include "string.h"
 
@@ -9,6 +12,38 @@
 String8 str8(byte *str, u64 size) {
     return (String8) { .str = str, .size = size };
 }
+
+// String8 str8_from_char(u8 c) {
+//     return str8((u8 *)&c, sizeof(u8));
+// }
+
+String8 str8_concat(Arena *arena, String8 s1, String8 s2) {
+    u64 size = s1.size + s2.size;
+    byte *ptr = arena_alloc(arena, size, 4);
+
+    memcpy(ptr, s1.str, s1.size);
+    memcpy(ptr + s1.size, s2.str, s2.size);
+
+    return str8(ptr, size);
+}
+
+void str8_print(const String8 *s) {
+    printf("%.*s\n", (int)s->size, s->str);
+}
+
+String8 str8_skip(const String8 s, u64 size) {
+    if (size > s.size) return str8_empty;
+    return str8(s.str + size, s.size - size);
+}
+
+String8 str8_trim(String8 s) {
+    while(char_is_space(*s.str)) {
+        s.str += 1;
+        s.size--;
+    }
+    return s;
+}
+
 
 i8 char_is_space(u8 c) {
     // TODO: don't remember all of them, need to add it later

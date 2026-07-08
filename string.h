@@ -2,11 +2,15 @@
 #define STRING_H
 
 #include "core.h"
+#include "arena.h"
 
 typedef struct String8 {
     u8 *str;
     u64 size;
 } String8;
+
+String8 str8(byte *str, u64 size);
+// String8 str8_from_char(u8 c);
 
 i8 char_is_space(u8 c);
 i8 char_is_upper(u8 c);
@@ -17,11 +21,34 @@ i8 char_is_digit(u8 c, u32 base);
 u8 lower_from_char(u8 c);
 u8 upper_from_char(u8 c);
 
+String8 str8_trim(String8 s);
+void str8_print(const String8 *s);
+
+i8 str8_starts_with(String8 str, String8 *prefix);
+i8 str8_ends_with(String8 str, String8 *suffix);
+
+/* Slicing */
+String8 str8_slice(String8 str, u64 start, u64 end);
+String8 str8_prefix(String8 s, u64 size);
+String8 str8_skip(String8 s, u64 size);
+String8 str8_chop(String8 s, u64 size);
+
+/* Formating / copying */
+String8 str8_concat(Arena* arena, String8 s1, String8 s2);
+String8 str8_copy(Arena* arena, String8 s);
+
+u32 u32_from_str8(String8 str, u32 base);
+u64 u64_from_str8(String8 str, u32 base);
+i32 i32_from_str8(String8 str, u32 base);
+i64 i64_from_str8(String8 str, u32 base);
+
 u64 cstr8_length(u8 *c);
 
-#define s(S)         str8_lit((S))
-#define str8_lit(S)  str8((u8*)(S) sizeof((S)) - 1)
+#define s(S)               str8_lit((S))
+#define str8_lit(S)        str8((u8*)(S), sizeof((S)) - 1)
+#define str8_from_char(c)  str8((u8*)(c), sizeof(u8))
+#define str8_empty         str8_lit("")
+// #define str8_from_char(c)  str8((u8*)(c), sizeof(u8))
 
-String8 str8(byte *str, u64 size);
 
 #endif // STRING_H

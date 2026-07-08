@@ -1,23 +1,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "types.h"
+#include "core.h"
 #include "arena.h"
 
 
 Arena *arena_init(Arena *a, size_t size) {
-    // if (a != NULL) {
-    //     while (a->next) { a = a->next; }
-    // }
-
     void *arena_ptr = malloc(size + sizeof(Arena));
-    if (!arena_ptr) return NULL;
+    if (!arena_ptr) return nullptr;
 
     Arena b = {
         .data = data_ptr(arena_ptr),
         .capacity = size,
         .offset = 0,
-        .next = (a != NULL) ? a : NULL,
+        .next = (a != NULL) ? a : nullptr,
     };
 
     *(Arena *)arena_ptr = b;
