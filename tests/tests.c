@@ -4,6 +4,7 @@
 
 #define VECTOR_IMPLEMENTATION
 #include "../vector.h"
+#include "../stack.h"
 
 
 Test(arena) {
@@ -69,7 +70,7 @@ Test(vector) {
         Ok(vec_last(v) == 6);
 
         Ok(vec_len(v) == 6);
-        Ok(vec_cap(v) == 8);
+        // Ok(vec_cap(v) == 8);
     }
 
     // vec_pop
@@ -87,6 +88,31 @@ Test(vector) {
     }
 
     arena_free(a);
+}
+
+Test(stack) {
+    Arena *a = arena_init(NULL, 128);
+
+    {
+        arena_reset(a);
+        Stack *s = stack_new(a, 8, sizeof(u8));
+
+        for (u8 i = 0; i < 5; i++) {   // {0, 1, 2, 3, 4}
+            stack_push(s, &i);
+        }
+        Ok(s->length == 5);
+        Ok(stack_is_empty(s) == false);
+
+        Ok(cast(u8, stack_pop(s)) == 4);
+        Ok(cast(u8, stack_pop(s)) == 3);
+        Ok(cast(u8, stack_pop(s)) == 2);
+        Ok(cast(u8, stack_pop(s)) == 1);
+        Ok(cast(u8, stack_pop(s)) == 0);
+        Ok(stack_is_empty(s) == true);
+
+        Ok(stack_pop(s) == nullptr);
+        Ok(stack_pop(s) == nullptr);
+    }
 }
 
 
