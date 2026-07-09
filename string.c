@@ -7,34 +7,34 @@
 
 #define ASCII_LOWER_UPPER_DIFF 32
 
-String8 str8(byte *str, u64 size) {
-    return (String8) { .chars = str, .size = size };
+String8 str8(byte *str, u64 length) {
+    return (String8) { .chars = str, .len = length };
 }
 
 String8 str8_concat(Arena *arena, String8 s1, String8 s2) {
-    u64 size = s1.size + s2.size;
-    byte *ptr = arena_alloc(arena, size, 4);
+    u64 len = s1.len + s2.len;
+    byte *ptr = arena_alloc(arena, len, 4);
 
-    memcpy(ptr, s1.chars, s1.size);
-    memcpy(ptr + s1.size, s2.chars, s2.size);
+    memcpy(ptr, s1.chars, s1.len);
+    memcpy(ptr + s1.len, s2.chars, s2.len);
 
-    return str8(ptr, size);
+    return str8(ptr, len);
 }
 
 void str8_print(const String8 *s) {
-    printf("%.*s\n", (int)s->size, s->chars);
+    printf("%.*s\n", (int)s->len, s->chars);
 }
 
 String8 str8_skip(const String8 s, u64 size) {
-    if (size > s.size) return str8_empty;
-    return str8(s.chars + size, s.size - size);
+    if (size > s.len) return str8_empty;
+    return str8(s.chars + size, s.len - size);
 }
 
 // QUESTION: what if we want to trim only spaces or only new line chars?
 String8 str8_trim(String8 s) {
     while(char_is_space(*s.chars)) {
         s.chars += 1;
-        s.size--;
+        s.len--;
     }
     return s;
 }

@@ -43,7 +43,7 @@ Token *next_token(Arena *arena, String8 *s) {
         start += 1;
     }
 
-    *s = str8_skip(*s, token_str.size);
+    *s = str8_skip(*s, token_str.len);
     return token(arena, type, token_str);
 }
 
