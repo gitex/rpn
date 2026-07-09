@@ -5,12 +5,11 @@
 #include "arena.h"
 
 typedef struct String8 {
-    u8 *str;
+    byte *chars;
     u64 size;
 } String8;
 
 String8 str8(byte *str, u64 size);
-// String8 str8_from_char(u8 c);
 
 i8 char_is_space(u8 c);
 i8 char_is_upper(u8 c);

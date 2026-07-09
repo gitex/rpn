@@ -6,23 +6,13 @@
 
 // char *str = "2 2 + 1 2 + *";  // (2 + 2) * (1 + 2) = 4 * 3 = 12
 // Rules:
-//     - Every token divided by space
+//     - Every token divided by at least one space (is it? what about 2 2+? is easy to detect)
 
 Token *token(Arena *arena, TokenType type, String8 str) {
     Token *token = arena_alloc(arena, sizeof(Token), 8);
     *token = (Token) {.type = type, .str = str };
     return token;
 }
-
-// static byte *pass_spaces(byte *str) {
-//     byte *ptr = str;
-//     while(char_is_space(*ptr)) { ptr += 1; }
-//     return ptr;
-// }
-
-// static i8 tt_is_math_exp(TokenType tt) {
-//     return tt == TOK_DIVIDE || tt == TOK_MINUS || tt == TOK_MULTIPLY || tt == TOK_PLUS;
-// }
 
 Token *next_token(Arena *arena, String8 *s) {
     *s = str8_trim(*s);
@@ -31,9 +21,9 @@ Token *next_token(Arena *arena, String8 *s) {
     String8 token_str = str8(token_str_ptr, 0);
     TokenType type = -1;
 
-    byte *start = s->str;
+    byte *start = s->chars;
     while(!char_is_space(*start)) {
-        byte c = *s->str;
+        byte c = *s->chars;
         TokenType char_type = -1;
 
         if      (c == '+') { char_type = TOK_PLUS; }
