@@ -39,6 +39,9 @@ String8 str8_trim(String8 s) {
     return s;
 }
 
+i32 str8_is_empty(const String8 s) {
+    return s.len == 0;
+}
 
 i8 char_is_space(u8 c) {
     // TODO: don't remember all of them, need to add it later

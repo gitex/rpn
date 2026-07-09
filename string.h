@@ -11,6 +11,8 @@ typedef struct String8 {
 
 String8 str8(byte *str, u64 length);
 
+
+#define char_is_nullterm(c) ((c) == '\0')
 i8 char_is_space(u8 c);
 i8 char_is_upper(u8 c);
 i8 char_is_lower(u8 c);

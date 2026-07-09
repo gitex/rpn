@@ -15,10 +15,8 @@ int main() {
     Arena *arena = arena_init(NULL, 1024);
     // u8 *vec = vec_new(arena, 32, sizeof(u8));
     String8 str = str8_lit("2 2 + 1 2 + *");
-    printf("%lu\n", str.len);
 
-
-    while(str.len > 0) {
+    while(str.len) {
         Token *token = next_token(arena, &str);
         str8_print(&token->str);
     }

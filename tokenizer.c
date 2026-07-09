@@ -21,9 +21,9 @@ Token *next_token(Arena *arena, String8 *s) {
     String8 token_str = str8(token_str_ptr, 0);
     TokenType type = -1;
 
-    byte *start = s->chars;
-    while(!char_is_space(*start)) {
-        byte c = *s->chars;
+    byte *ch_ptr = s->chars;
+    while(!char_is_space(*ch_ptr) && !char_is_nullterm(*ch_ptr)) {
+        byte c = *ch_ptr;
         TokenType char_type = -1;
 
         if      (c == '+') { char_type = TOK_PLUS; }
@@ -31,7 +31,7 @@ Token *next_token(Arena *arena, String8 *s) {
         else if (c == '*') { char_type =  TOK_MULTIPLY; }
         else if (c == '/') { char_type = TOK_DIVIDE; }
         else if (char_is_digit(c, Base10)) { char_type = TOK_NUMBER; }
-        else { return null; }
+        else { continue; }
 
         token_str = str8_concat(arena, token_str, str8_from_char(&c));
 
@@ -40,7 +40,7 @@ Token *next_token(Arena *arena, String8 *s) {
         }
 
         type = char_type;
-        start += 1;
+        ch_ptr += 1;
     }
 
     *s = str8_skip(*s, token_str.len);
