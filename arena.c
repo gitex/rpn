@@ -1,11 +1,12 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "core.h"
 #include "arena.h"
 
 
-Arena *arena_init(Arena *a, size_t size) {
+Arena *arena_init(Arena *a, usize size) {
     void *arena_ptr = malloc(size + sizeof(Arena));
     if (!arena_ptr) return nullptr;
 
@@ -21,7 +22,7 @@ Arena *arena_init(Arena *a, size_t size) {
     return arena_ptr;
 }
 
-static uptr calc_padding(uptr ptr, size_t align) {
+static uptr calc_padding(uptr ptr, usize align) {
     size_t mod = ptr % align;
     if (mod != 0) {
         return align - mod;
@@ -29,22 +30,32 @@ static uptr calc_padding(uptr ptr, size_t align) {
     return 0;
 }
 
-void *arena_alloc(Arena *a, size_t size, size_t align) {
+void *arena_alloc(Arena *a, usize size, ArenaAlign align) {
     if (size > a->capacity - a->offset) { return NULL; }
 
-    if (align > 0) {
+    if (align != NO_ALIGN) {
         uptr current = (uptr)a->data + a->offset;
         size_t padding = calc_padding(current, align);
-        if (a->offset + padding + size > a->capacity) { return NULL; }
+        if (a->offset + padding + size > a->capacity) {
+            return NULL;
+        }
 
         a->offset += padding;
     }
 
     void *ptr = a->data + a->offset;
     a->offset += size;
+    // TODO: zero allocated memory? Or do different function for that?
 
     return ptr;
 }
+
+void *arena_alloc_zeroed(Arena *a, usize size, ArenaAlign align) {
+    byte *start = arena_alloc(a, size, align);
+    memset(start, 0, size);
+    return start;
+}
+
 void arena_reset(Arena *a) {
     a->offset = 0;
 }

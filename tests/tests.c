@@ -5,7 +5,46 @@
 #define VECTOR_IMPLEMENTATION
 #include "../vector.h"
 #include "../stack.h"
+#include "../string.h"
 
+Test(strings) {
+    Arena *a = arena_init(NULL, 128);
+
+    // match
+    {
+        arena_reset(a);
+        Ok(str8_match(str8_lit("abc"),      str8_lit("abc")) == 0);
+        Ok(str8_match(str8_lit("bbc"),      str8_lit("abc")) == 1);
+        Ok(str8_match(str8_lit("abc"),      str8_lit("bbc")) == -1);
+        Ok(str8_match(str8_lit("a"),        str8_lit("a")) == 0);
+        // Ok(str8_match(str8_from_char('a'),  str8_lit("a")) == 0);
+        Ok(str8_match(str8_lit("abcd"),     str8_lit("abc")) == 1);
+        Ok(str8_match(str8_lit("abc"),      str8_lit("abcd")) == -1);
+    }
+
+    // reverse string
+    {
+        arena_reset(a);
+
+        String8 str = *str8_alloc_cstr(a, "abcd");
+        Ok(str8_match(str8_reverse(str), str8_lit("dcba")) == 0);
+        Ok(str8_match(str8_reverse(str), str8_lit("abcd")) == 0);
+
+        str = *str8_alloc_cstr(a, "abcde");
+        Ok(str8_match(str8_reverse(str), str8_lit("edcba")) == 0);
+        Ok(str8_match(str8_reverse(str), str8_lit("abcde")) == 0);
+    }
+
+    {
+        arena_reset(a);
+
+        Ok(u64_from_str8(str8_lit("1"),     Base10) == 1);
+        Ok(u64_from_str8(str8_lit("21"),    Base10) == 21);
+        Ok(u64_from_str8(str8_lit("285"),   Base10) == 285);
+        Ok(u64_from_str8(str8_lit("3019"),  Base10) == 3019);
+        Ok(u64_from_str8(str8_lit("30192"), Base10) == 30192);
+    }
+}
 
 Test(arena) {
     Arena *a = arena_init(NULL, 64);

@@ -23,3 +23,25 @@ u64 next_pow2_64(u64 v) {
     v++;
     return v;
 }
+
+u64 pow_u64(u64 base, u64 exp) {
+    if (exp == 0) {
+        return 1;
+    }
+
+    if (base == 2) {
+        return 1 << exp;
+    }
+
+    u64 res = 1;
+
+    while (exp != 0) {
+        if (exp & 1) {
+            res *= base;
+        }
+        base *= base;
+        exp >>= 1;
+    }
+
+    return res;
+}

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 ///////////////////////////////////////////////////////
 //////////////////// Context //////////////////////////
@@ -33,6 +34,7 @@ typedef double        f64;
 typedef unsigned char byte;
 typedef uintptr_t     uptr;
 typedef void*         ptr;
+typedef size_t        usize;
 
 #define i8_min    INT8_MIN;
 #define i16_min   INT16_MIN;
@@ -67,6 +69,15 @@ typedef void*         ptr;
 ///////////////////////////////////////////////////////
 //////////////////// String ///////////////////////////
 
+
+///////////////////////////////////////////////////////
+//////////////////// Math /////////////////////////////
+
+u64 pow_u64(u64 base, u64 exp);
+#define pow2(x)  (x) * (x);
+#define pow3(x)  (x) * (x) * (x);
+#define pow4(x)  (x) * (x) * (x) * (x);
+
 typedef enum {
     Base2 =  2,
     Base4 =  4,
@@ -90,5 +101,7 @@ u64 next_pow2_64(u64 v);
 #endif  // PLATFORM
 
 ///////////////////////////////////////////////////////
+
+#define NotImplemented(s) (printf("%s is not implemented yet", (s)), exit(1))
 
 # endif  // TYPES_H

@@ -1,7 +1,5 @@
-#include "core.h"
 #include "string.h"
 #include "arena.h"
-
 #include "tokenizer.h"
 
 // char *str = "2 2 + 1 2 + *";  // (2 + 2) * (1 + 2) = 4 * 3 = 12
@@ -19,12 +17,12 @@ Token *next_token(Arena *arena, String8 *s) {
 
     byte *token_str_ptr = arena_alloc(arena, TOKEN_MAX_SIZE, TOKEN_MAX_SIZE);
     String8 token_str = str8(token_str_ptr, 0);
-    TokenType type = -1;
+    TokenType token_type = UNINITIALIZED;
 
     byte *ch_ptr = s->chars;
     while(!char_is_space(*ch_ptr) && !char_is_nullterm(*ch_ptr)) {
         byte c = *ch_ptr;
-        TokenType char_type = -1;
+        TokenType char_type = UNINITIALIZED;
 
         if      (c == '+') { char_type = TOK_PLUS; }
         else if (c == '-') { char_type = TOK_MINUS; }
@@ -35,16 +33,16 @@ Token *next_token(Arena *arena, String8 *s) {
 
         token_str = str8_concat(arena, token_str, str8_from_char(&c));
 
-        if (type != -1 && char_type != type) {
+        if (token_type != UNINITIALIZED && char_type != token_type) {
             break;
         }
+        token_type = char_type;
 
-        type = char_type;
         ch_ptr += 1;
     }
 
     *s = str8_skip(*s, token_str.len);
-    return token(arena, type, token_str);
+    return token(arena, token_type, token_str);
 }
 
 

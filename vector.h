@@ -13,7 +13,6 @@
 #define REALLOC(ctx, ptr, size)
 #define FREE(ctx, ptr)
 
-#define VECTOR_IMPLEMENTATION
 #ifdef VECTOR_IMPLEMENTATION
 
 #define CAP_MIN 4
