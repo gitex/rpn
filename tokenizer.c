@@ -3,8 +3,11 @@
 #include "string.h"
 #include "arena.h"
 #include "tokenizer.h"
+#include <assert.h>
 
-// char *str = "2 2 + 1 2 + *";  // (2 + 2) * (1 + 2) = 4 * 3 = 12
+#define VECTOR_IMPLEMENTATION
+#include "vector.h"
+
 // Rules:
 //     - Every token divided by at least one space
 
@@ -58,6 +61,54 @@ Token *next_token(Arena *arena, String8 *s) {
 
     *s = str8_skip(*s, token_str.len);
     return token;
+}
+
+
+Result calc_expression(String8 expr) {
+    Arena *arena = arena_init(NULL, Kilobytes(32));
+
+    u64 *vec = vec_new(arena, 32, sizeof(u64));
+
+    while(expr.len) {
+        Token *token = next_token(arena, &expr);
+
+        if (token->tag == TOK_UINT) {
+            vec_push(vec, token->value.u);
+        } else if (token->tag == TOK_OPERATION) {
+            u64 result = 0;
+
+            Op op = token->value.op;
+
+            assert(op.arity <= vec_len(vec));
+
+            switch (op.arity) {
+                case 0:
+                    result = op.fn.nullary();
+                    break;
+                case 1:
+                    result = op.fn.unary(vec_pop(vec));
+                    break;
+                case 2:
+                    result = op.fn.binary(vec_pop(vec), vec_pop(vec));
+                    break;
+                case 3:
+                    result = op.fn.ternary(vec_pop(vec), vec_pop(vec), vec_pop(vec));
+                    break;
+                default:
+                    NotImplemented("Does not support arity more then 3");
+            }
+
+            vec_push(vec, result);
+        }
+    }
+
+    Result result = {
+        .type = RESULT_U64,
+        .value = { .u = vec_pop(vec) },
+    };
+
+    arena_free(arena);
+    return result;
 }
 
 

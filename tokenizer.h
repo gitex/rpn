@@ -59,4 +59,18 @@ typedef struct {
 
 Token *next_token(Arena *arena, String8 *s);
 
+typedef enum {
+    RESULT_U64 = 0,
+    RESULT_UNKNOWN,
+
+} ResultType;
+
+typedef struct {
+    ResultType type;
+    union {
+        u64 u;
+    } value;
+} Result;
+
+Result calc_expression(String8 expr);
 
