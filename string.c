@@ -16,13 +16,17 @@ String8 str8(u8 *chars, u64 length) {
     return (String8) { .chars = chars, .len = length };
 }
 
-String8 *str8_alloc(Arena *arena, u8 *chars, u64 length) {
+String8 *str8_alloc(Arena *arena, char *chars, u64 length) {
     byte *ptr = arena_alloc(arena, length + sizeof(String8), 8);
     byte *data_ptr = ptr + sizeof(String8);
     memcpy(data_ptr, chars, length);
 
     *(String8 *)ptr = str8(data_ptr, length);
     return (String8 *)ptr;
+}
+
+String8 *str8_from_cstr(Arena* arena, char *chars) {
+    return str8_alloc(arena, chars, strlen(chars));
 }
 
 /////////////////////////////////////////////////////////////
@@ -122,6 +126,22 @@ u64 u64_from_str8(String8 s, u32 base) {
 
 i32 str8_is_empty(const String8 s) {
     return s.len == 0;
+}
+
+
+u64 str8_is_u64(String8 s, u32 base) {
+    switch (base) {
+        case Base10:
+            for (usize i = 0; i < s.len; i++) {
+                if (!char_is_digit(s.chars[i], Base10)) {
+                    return false;
+                }
+            }
+            return true;
+
+        default:
+            NotImplemented("str8_is_numeric for other bases not implemented yet");
+    }
 }
 
 // TODO: this does not look like proper formating to me

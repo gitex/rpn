@@ -1,6 +1,8 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include <string.h>
+
 #include "core.h"
 #include "arena.h"
 
@@ -10,12 +12,13 @@ typedef struct String8 {
 } String8;
 
 #define s(S)               str8_lit((S))
-#define str8_lit(S)        str8((u8*)(S), sizeof((S)) - 1)
+#define str8_lit(S)        str8((u8*)(S), strlen((S)))
 #define str8_from_char(c)  str8((u8*)(c), sizeof(u8))
 #define str8_empty         str8_lit("")
 String8 str8(byte *str, u64 length);
 #define str8_alloc_cstr(a, chars) str8_alloc(a, (u8 *)chars, sizeof(chars) - 1)
-String8 *str8_alloc(Arena *arena, u8 *chars, u64 length);
+String8 *str8_alloc(Arena *arena, char *chars, u64 length);
+String8 *str8_from_cstr(Arena* arena, char *chars);
 
 /* Chars */
 i8 char_is_space(u8 c);
@@ -56,5 +59,6 @@ i64 i64_from_str8(String8 str, u32 base);
 
 void str8_print(const String8 *s);
 u64 cstr8_length(u8 *c);
+u64 str8_is_u64(String8 s, u32 base);
 
 #endif // STRING_H
