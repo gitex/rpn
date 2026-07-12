@@ -6,8 +6,8 @@
 
 
 int main() {
-    String8 str = str8_lit("5 0 /");
-    Result result = calc_expression(str);
-    printf("%lu\n", result.value.u);
+    String8 str = str8_lit("4 1 %");
+    Opnd result = calc_expression(str);
+    printf("%lu\n", result);
     return 0;
 }

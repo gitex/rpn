@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "core.h"
 #include "string.h"
 #include "arena.h"
@@ -11,13 +10,15 @@
 // Rules:
 //     - Every token divided by at least one space
 
-const u64 add(u64 a, u64 b)      { return a + b; }
-const u64 minus(u64 a, u64 b)    { return a - b; }
-const u64 multiply(u64 a, u64 b) { return a * b; }
-const u64 divide(u64 a, u64 b)   { return a / b; }
-const u64 max2(u64 a, u64 b)      { return (a > b) ? a : b; }
-const u64 min2(u64 a, u64 b)      { return (a < b) ? a : b; }
-
+Opnd op_add(Opnd a, Opnd b)             { return a + b; }
+Opnd op_minus(Opnd a, Opnd b)           { return a - b; }
+Opnd op_multiply(Opnd a, Opnd b)        { return a * b; }
+Opnd op_divide(Opnd a, Opnd b)          { return a / b; }
+Opnd op_modulo(Opnd a, Opnd b)          { return a % b; }
+Opnd op_max2(Opnd a, Opnd b)            { return (a > b) ? a : b; }
+Opnd op_min2(Opnd a, Opnd b)            { return (a < b) ? a : b; }
+Opnd op_min3(Opnd a, Opnd b, Opnd c)     { return op_min2(op_min2(a, b), c); }
+Opnd op_max3(Opnd a, Opnd b, Opnd c)     { return op_max2(op_max2(a, b), c); }
 
 Token *next_token(Arena *arena, String8 *s) {
     *s = str8_trim(*s);
@@ -43,7 +44,7 @@ Token *next_token(Arena *arena, String8 *s) {
         };
     // ... or operation?
     } else {
-        for (int i = 0; i < ops_count; i++) {
+        for (usize i = 0; i < ops_count; i++) {
             String8 op_word = *str8_from_cstr(arena, ops[i].word);
             if (str8_match(op_word, token_str) == 0) {
                 *token = (Token) {
@@ -64,10 +65,10 @@ Token *next_token(Arena *arena, String8 *s) {
 }
 
 
-Result calc_expression(String8 expr) {
+Opnd calc_expression(String8 expr) {
     Arena *arena = arena_init(NULL, Kilobytes(32));
 
-    u64 *vec = vec_new(arena, 32, sizeof(u64));
+    Opnd *vec = vec_new(arena, 32, sizeof(u64));
 
     while(expr.len) {
         Token *token = next_token(arena, &expr);
@@ -81,6 +82,7 @@ Result calc_expression(String8 expr) {
 
             assert(op.arity <= vec_len(vec));
 
+            Opnd a, b, c;
             switch (op.arity) {
                 case 0:
                     result = op.fn.nullary();
@@ -89,10 +91,19 @@ Result calc_expression(String8 expr) {
                     result = op.fn.unary(vec_pop(vec));
                     break;
                 case 2:
-                    result = op.fn.binary(vec_pop(vec), vec_pop(vec));
+                    // NOTE(Evgeniy): macros vec_pop contains length--
+                    // Puting more then one vec_pop into func args may cause UB
+                    a = vec_pop(vec);
+                    b = vec_pop(vec);
+                    result = op.fn.binary(a, b);
                     break;
                 case 3:
-                    result = op.fn.ternary(vec_pop(vec), vec_pop(vec), vec_pop(vec));
+                    // NOTE(Evgeniy): macros vec_pop contains length--
+                    // Puting more then one vec_pop into func args may cause UB
+                    a = vec_pop(vec);
+                    b = vec_pop(vec);
+                    c = vec_pop(vec);
+                    result = op.fn.ternary(a, b, c);
                     break;
                 default:
                     NotImplemented("Does not support arity more then 3");
@@ -102,10 +113,7 @@ Result calc_expression(String8 expr) {
         }
     }
 
-    Result result = {
-        .type = RESULT_U64,
-        .value = { .u = vec_pop(vec) },
-    };
+    Opnd result = vec_pop(vec);
 
     arena_free(arena);
     return result;

@@ -7,10 +7,12 @@ typedef enum {
     TOK_OPERATION,
 } TokenTag;
 
-typedef const u64 (*Nullary)();
-typedef const u64 (*Unary)(u64);
-typedef const u64 (*Binary)(u64, u64);
-typedef const u64 (*Ternary)(u64, u64, u64);
+typedef i64 Opnd;  // Operand
+
+typedef Opnd (*Nullary)();
+typedef Opnd (*Unary)  (Opnd);
+typedef Opnd (*Binary) (Opnd, Opnd);
+typedef Opnd (*Ternary)(Opnd, Opnd, Opnd);
 
 
 typedef struct {
@@ -25,23 +27,27 @@ typedef struct {
 } Op;
 
 
-const u64 add(u64 a, u64 b);
-const u64 minus(u64 a, u64 b);
-const u64 multiply(u64 a, u64 b);
-const u64 divide(u64 a, u64 b);
-const u64 min2(u64 a, u64 b);
-const u64 max2(u64 a, u64 b);
-const u64 min3(u64 a, u64 b, u64 c);
-const u64 max3(u64 a, u64 b, u64 c);
+Opnd op_add(Opnd a, Opnd b);
+Opnd op_minus(Opnd a, Opnd b);
+Opnd op_multiply(Opnd a, Opnd b);
+Opnd op_divide(Opnd a, Opnd b);
+Opnd op_modulo(Opnd a, Opnd b);
+Opnd op_min2(Opnd a, Opnd b);
+Opnd op_max2(Opnd a, Opnd b);
+Opnd op_min3(Opnd a, Opnd b, Opnd c);
+Opnd op_max3(Opnd a, Opnd b, Opnd c);
 
+static const Op ops[] = {
+    {.word="+",    .arity=2, .fn = { .binary = op_add } },
+    {.word="-",    .arity=2, .fn = { .binary = op_minus } },
+    {.word="*",    .arity=2, .fn = { .binary = op_multiply } },
+    {.word="/",    .arity=2, .fn = { .binary = op_divide } },
+    {.word="%",    .arity=2, .fn = { .binary = op_modulo } },
+    {.word="min2", .arity=2, .fn = { .binary = op_min2 } },
+    {.word="max2", .arity=2, .fn = { .binary = op_max2 } },
 
-static Op ops[] = {
-    (Op) {.word="+",    .arity=2, .fn = { .binary = add } },
-    (Op) {.word="-",    .arity=2, .fn = { .binary = minus } },
-    (Op) {.word="*",    .arity=2, .fn = { .binary = multiply } },
-    (Op) {.word="/",    .arity=2, .fn = { .binary = divide } },
-    (Op) {.word="min2", .arity=2, .fn = { .binary = min2 } },
-    (Op) {.word="max2", .arity=2, .fn = { .binary = max2 } },
+    {.word="min3", .arity=3, .fn = { .ternary = op_min3 } },
+    {.word="max3", .arity=3, .fn = { .ternary = op_max3 } },
 };
 
 static const usize ops_count = sizeof(ops) / sizeof(Op);
@@ -59,18 +65,5 @@ typedef struct {
 
 Token *next_token(Arena *arena, String8 *s);
 
-typedef enum {
-    RESULT_U64 = 0,
-    RESULT_UNKNOWN,
-
-} ResultType;
-
-typedef struct {
-    ResultType type;
-    union {
-        u64 u;
-    } value;
-} Result;
-
-Result calc_expression(String8 expr);
+Opnd calc_expression(String8 expr);
 

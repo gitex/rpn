@@ -7,6 +7,10 @@
 #include "../stack.h"
 #include "../string.h"
 
+Test(rpn) {
+
+}
+
 Test(strings) {
     Arena *a = arena_init(NULL, 128);
 

@@ -16,7 +16,7 @@ String8 str8(u8 *chars, u64 length) {
     return (String8) { .chars = chars, .len = length };
 }
 
-String8 *str8_alloc(Arena *arena, char *chars, u64 length) {
+String8 *str8_alloc(Arena *arena, const char *chars, u64 length) {
     byte *ptr = arena_alloc(arena, length + sizeof(String8), 8);
     byte *data_ptr = ptr + sizeof(String8);
     memcpy(data_ptr, chars, length);
@@ -25,7 +25,7 @@ String8 *str8_alloc(Arena *arena, char *chars, u64 length) {
     return (String8 *)ptr;
 }
 
-String8 *str8_from_cstr(Arena* arena, char *chars) {
+String8 *str8_from_cstr(Arena* arena, const char *chars) {
     return str8_alloc(arena, chars, strlen(chars));
 }
 

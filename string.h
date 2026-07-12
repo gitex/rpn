@@ -17,8 +17,8 @@ typedef struct String8 {
 #define str8_empty         str8_lit("")
 String8 str8(byte *str, u64 length);
 #define str8_alloc_cstr(a, chars) str8_alloc(a, (u8 *)chars, sizeof(chars) - 1)
-String8 *str8_alloc(Arena *arena, char *chars, u64 length);
-String8 *str8_from_cstr(Arena* arena, char *chars);
+String8 *str8_alloc(Arena *arena, const char *chars, u64 length);
+String8 *str8_from_cstr(Arena* arena, const char *chars);
 
 /* Chars */
 i8 char_is_space(u8 c);
