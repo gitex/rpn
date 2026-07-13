@@ -11,8 +11,6 @@
 
 
 i64 run_interpreter(void) {
-    u64 cur_row = 1;
-    u64 cur_col = 1;
     char cur_input[1024];
 
     Arena *arena = arena_init(NULL, Kilobytes(32));
