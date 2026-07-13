@@ -2,12 +2,13 @@
 #define STRING_H
 
 #include <string.h>
+#include <stdarg.h>
 
 #include "core.h"
 #include "arena.h"
 
 typedef struct String8 {
-    byte *chars;
+    u8 *chars;
     u64 len;
 } String8;
 
@@ -49,7 +50,10 @@ String8 str8_chop(String8 s, u64 size);
 
 /* Formating / copying */
 String8 str8_concat(Arena* arena, String8 s1, String8 s2);
+String8 str8_concat_sep(Arena *arena, String8 s1, String8 s2, String8 sep);
 String8 str8_copy(Arena* arena, String8 s);
+String8 str8_fv(Arena *arena, char *fmt, va_list args);
+String8 str8_f(Arena *arena, char *fmt, ...);
 
 /* Conversions */
 u32 u32_from_str8(String8 str, u32 base);

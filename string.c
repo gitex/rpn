@@ -1,6 +1,4 @@
-#include <string.h>
 #include <stdio.h>
-#include <math.h>
 
 #include "core.h"
 #include "string.h"
@@ -29,8 +27,48 @@ String8 *str8_from_cstr(Arena* arena, const char *chars) {
     return str8_alloc(arena, chars, strlen(chars));
 }
 
+String8 str8_fv(Arena *arena, char *fmt, va_list args) {
+    va_list copy;
+    va_copy(copy, args);
+    usize len = vsnprintf(NULL, 0, fmt, copy);
+
+    String8 *header = arena_alloc(arena, sizeof(String8), ALIGN_8);
+    u8 *buf = arena_alloc(arena, len + 1, NO_ALIGN);
+    vsnprintf(buf, len + 1, fmt, args);
+
+    header->len = len;
+    header->chars = buf;
+
+    return *header;
+}
+
+String8 str8_f(Arena *arena, char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+    String8 str = str8_fv(arena, fmt, args);
+
+    va_end(args);
+    return str;
+}
+
 /////////////////////////////////////////////////////////////
 // String modifications
+
+
+String8 str8_concat_sep(Arena *arena, String8 s1, String8 s2, String8 sep) {
+    if (s1.len == 0 && s2.len == 0) return sep;
+
+    u64 len = s1.len + sep.len + s2.len;
+    u8 *ptr = arena_alloc(arena, len, 4);
+    if (!ptr) return str8_empty;
+
+    memcpy(ptr, s1.chars, s1.len);
+    memcpy(ptr + s1.len, sep.chars, sep.len);
+    memcpy(ptr + s1.len + sep.len, s2.chars, s2.len);
+
+    return str8(ptr, len);
+}
 
 String8 str8_concat(Arena *arena, String8 s1, String8 s2) {
     u64 len = s1.len + s2.len;
@@ -42,7 +80,6 @@ String8 str8_concat(Arena *arena, String8 s1, String8 s2) {
 
     return str8(ptr, len);
 }
-
 
 String8 str8_skip(const String8 s, u64 size) {
     if (size > s.len) return str8_empty;
@@ -97,7 +134,6 @@ i32 str8_match(String8 a, String8 b) {
 
     return 0;
 }
-
 
 /////////////////////////////////////////////////////////////
 // Conversion Int <=> String

@@ -5,7 +5,10 @@
 typedef enum {
     TOK_UINT,
     TOK_OPERATION,
+    TOK_UNKNOWN,
 } TokenTag;
+
+/* Operands and operations */
 
 typedef i64 Opnd;  // Operand
 
@@ -13,7 +16,6 @@ typedef Opnd (*Nullary)();
 typedef Opnd (*Unary)  (Opnd);
 typedef Opnd (*Binary) (Opnd, Opnd);
 typedef Opnd (*Ternary)(Opnd, Opnd, Opnd);
-
 
 typedef struct {
     const char *word;
@@ -62,8 +64,16 @@ typedef struct {
     } value;
 } Token;
 
+/* Result */
+
+typedef struct {
+    Opnd operand;
+    String8 err_msg;
+} Result;
+
+/* Methods */
 
 Token *next_token(Arena *arena, String8 *s);
 
-Opnd calc_expression(String8 expr);
+Result calc_expression(Arena *arena, String8 expr);
 

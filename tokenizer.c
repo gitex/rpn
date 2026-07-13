@@ -7,6 +7,10 @@
 #define VECTOR_IMPLEMENTATION
 #include "vector.h"
 
+
+#define MAX_STACK_SIZE 64
+
+
 // Rules:
 //     - Every token divided by at least one space
 
@@ -34,6 +38,7 @@ Token *next_token(Arena *arena, String8 *s) {
     }
 
     Token *token = arena_alloc(arena, sizeof(Token), ALIGN_8);
+    *s = str8_skip(*s, token_str.len);
 
     // Is it number
     if (str8_is_u64(token_str, Base10)) {
@@ -42,6 +47,8 @@ Token *next_token(Arena *arena, String8 *s) {
             .tag = TOK_UINT,
             .value = { .u = u64_from_str8(token_str, Base10)}
         };
+        return token;
+
     // ... or operation?
     } else {
         for (usize i = 0; i < ops_count; i++) {
@@ -52,36 +59,46 @@ Token *next_token(Arena *arena, String8 *s) {
                     .tag = TOK_OPERATION,
                     .value = { .op = ops[i] },
                 };
-                break;
+                return token;
             }
         }
-
-        // fprintf(stderr, "Cannot parse expression '%.*s'\n", token_str.len, token_str.chars);
-        // exit(1);
     }
 
-    *s = str8_skip(*s, token_str.len);
+    *token = (Token) {.str = token_str, .tag = TOK_UNKNOWN };
     return token;
 }
 
 
-Opnd calc_expression(String8 expr) {
-    Arena *arena = arena_init(NULL, Kilobytes(32));
+Result calc_expression(Arena *arena, String8 expr) {
+    if (expr.len == 0) {
+        return (Result) {
+            .err_msg = str8_f(arena, "Expression cannot be empty\n"),
+        };
+    }
 
-    Opnd *vec = vec_new(arena, 32, sizeof(u64));
+    Opnd *vec = vec_new(arena, MAX_STACK_SIZE, sizeof(u64));
 
     while(expr.len) {
         Token *token = next_token(arena, &expr);
 
+        if (token->tag == TOK_UNKNOWN) {
+            return (Result) {
+                .err_msg = str8_f(arena, "Invalid expression '%.*s'\n", token->str.len, token->str.chars),
+            };
+        }
+
         if (token->tag == TOK_UINT) {
             vec_push(vec, token->value.u);
         } else if (token->tag == TOK_OPERATION) {
-            u64 result = 0;
-
             Op op = token->value.op;
 
-            assert(op.arity <= vec_len(vec));
+            if (op.arity > vec_len(vec)) {
+                return (Result) {
+                    .err_msg = str8_f(arena, "Operation %s requires %u operands\n", op.word, op.arity),
+                };
+            }
 
+            u64 result = 0;
             Opnd a, b, c;
             switch (op.arity) {
                 case 0:
@@ -113,10 +130,24 @@ Opnd calc_expression(String8 expr) {
         }
     }
 
-    Opnd result = vec_pop(vec);
+    usize stack_len = vec_len(vec);
+    if (stack_len > 1) {
+        String8 opnds_left = str8_lit(""),
+                sep = str8_lit(" "),
+                last_opnd;
 
-    arena_free(arena);
-    return result;
+        while (!vec_is_empty(vec)) {
+            last_opnd = str8_f(arena, "%d", vec_pop(vec));
+            opnds_left = str8_concat_sep(arena, opnds_left, last_opnd, sep);
+        }
+        opnds_left = str8_reverse(str8_trim(opnds_left));
+        return (Result) {
+            .err_msg = str8_f(arena, "At the end %u operands left instead of 1 (%.*s), "
+                    "maybe missing operator\n", stack_len, opnds_left.len, opnds_left.chars),
+        };
+    }
+
+    return (Result) { .operand = vec_pop(vec) };
 }
 
 
