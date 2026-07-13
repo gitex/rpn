@@ -45,3 +45,22 @@ u64 pow_u64(u64 base, u64 exp) {
 
     return res;
 }
+
+usize u64_length(u64 v) {
+    usize len = 0;
+    while (v) {
+        len++;
+        v /= 10;
+    }
+    return len;
+}
+
+usize i64_length(i64 v) {
+    usize len = (v <= 0);  // if '-' then 1 else 0
+    while(v) {
+        len++;
+        v /= 10;
+    }
+    return len;
+}
+

@@ -75,6 +75,8 @@ typedef size_t        usize;
 //////////////////// Math /////////////////////////////
 
 u64 pow_u64(u64 base, u64 exp);
+usize u64_length(u64 v);
+usize i64_length(i64 v);
 #define pow2(x)  (x) * (x);
 #define pow3(x)  (x) * (x) * (x);
 #define pow4(x)  (x) * (x) * (x) * (x);

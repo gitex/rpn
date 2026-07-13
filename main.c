@@ -22,7 +22,7 @@ i64 run_interpreter(void) {
         term_print(str8_lit(INPUT_PREFIX));
 
         fgets(cur_input, sizeof(cur_input), stdin);
-        expr = str8((byte*)cur_input, strlen(cur_input) - 1); // brrrr
+        expr = str8((byte*)cur_input, strlen(cur_input) - 1); // brrrr, nullterm
 
         if (str8_match(expr, str8_lit("q")) == 0) {
             quit = true;
@@ -43,12 +43,8 @@ i64 run_interpreter(void) {
     return 0;
 }
 
-
-
-int main(int argc, char **argv) {
-    if (argc == 1) {
-        run_interpreter();
-    }
+int main(void) {
+    run_interpreter();
 
     return 0;
 }

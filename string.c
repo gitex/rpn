@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #include "core.h"
 #include "string.h"
@@ -6,9 +7,11 @@
 
 
 #define ASCII_LOWER_UPPER_DIFF 32
+#define ASCII_ZERO 48
 
 // 0 - 9  => 48 - 57
-#define ascii_char_to_digit(c) ((c) - 48);
+#define ascii_char_to_digit(c) ((c) - ASCII_ZERO);
+#define digit_to_ascii_char(d) ((d) + ASCII_ZERO)
 
 String8 str8(u8 *chars, u64 length) {
     return (String8) { .chars = chars, .len = length };
@@ -34,7 +37,7 @@ String8 str8_fv(Arena *arena, char *fmt, va_list args) {
 
     String8 *header = arena_alloc(arena, sizeof(String8), ALIGN_8);
     u8 *buf = arena_alloc(arena, len + 1, NO_ALIGN);
-    vsnprintf(buf, len + 1, fmt, args);
+    vsnprintf((char*)buf, len + 1, fmt, args);
 
     header->len = len;
     header->chars = buf;
@@ -144,17 +147,42 @@ u64 u64_from_str8(String8 s, u32 base) {
     // TODO: add other bases
     switch (base) {
         case Base10:
-            for(size_t i = 0; i < s.len; i++) {
+            for(usize i = 0; i < s.len; i++) {
                 u64 n = ascii_char_to_digit(s.chars[i]);
                 u64 exp = s.len - 1 - i;
                 result += (n * pow_u64(10, exp));
             }
             break;
         default:
-            NotImplemented("u64_from_string on other bases");
+            NotImplemented("u64_from_string for other bases");
     }
 
     return result;
+}
+
+String8 *str8_from_i64(Arena *arena, i64 v, u32 base) {
+    char tmp[32];
+
+    switch (base) {
+        case Base10: {
+            usize len = i64_length(v);
+
+            u8 mod, idx;
+            for (usize i = 0; i < len; i++) {
+                mod = v % 10;
+                v /= 10;
+                idx = len - 1 - i;
+                tmp[idx] = digit_to_ascii_char(mod);
+            }
+            tmp[len] = '\0';
+
+            return str8_from_cstr(arena, tmp);
+            break;
+        }
+
+        default:
+            NotImplemented("str8_from_i64 for other bases");
+    }
 }
 
 /////////////////////////////////////////////////////////////
@@ -167,13 +195,14 @@ i32 str8_is_empty(const String8 s) {
 
 u64 str8_is_u64(String8 s, u32 base) {
     switch (base) {
-        case Base10:
+        case Base10: {
             for (usize i = 0; i < s.len; i++) {
                 if (!char_is_digit(s.chars[i], Base10)) {
                     return false;
                 }
             }
             return true;
+        }
 
         default:
             NotImplemented("str8_is_numeric for other bases not implemented yet");
