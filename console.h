@@ -8,6 +8,8 @@
 #define ESC "\033"
 #define CSI "["
 #define OSC "]"
+#define COLOR_PREFIX ESC CSI
+#define COLOR_SUFFIX "m"
 
 #define FIRST_COL 1
 #define FIRST_ROW 1
@@ -24,8 +26,9 @@ typedef enum {
     FG_WHITE   = 37,
 } Color;
 
-#define colorize(text, color)  (ESC (color) "m" (text) ESC "0m")
-#define color_start(color)     (ESC (color) "m")
+
+#define colorize(text, color)  ESC CSI color "m" text ESC CSI "0m"
+#define color_start(color)     (ESC color "m")
 #define color_end()            (ESC "0m")
 
 #define UPPER_LEFT_CORNER   (ESC CSI "H")
@@ -37,6 +40,6 @@ typedef enum {
 #define term_clear(row)             printf(CLEAR_CURRENT_ROW)
 #define term_print(s)               printf("%.*s", (int)(s).len, (s).chars)
 #define term_print_row(s)           printf("%.*s\n", (int)(s).len, (s).chars)
-#define term_print_colorized(s, c)  printf("%.*s", (int)(s).len, (s).chars)
+#define term_print_colorized(s, c)  printf("\033[%dm%.*s\033[0m", (c), (int)(s).len, (s).chars)
 
 #endif
